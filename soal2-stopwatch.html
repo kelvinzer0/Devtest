@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>STOPWATCH</title>
+    <link href="https://fonts.cdnfonts.com/css/poppins" rel="stylesheet" />
+
+    <style>
+      html,
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Poppins", sans-serif;
+      }
+      .main-container {
+        background: linear-gradient(
+          180deg,
+          #1cb5f7 0%,
+          rgba(237, 250, 255, 0) 100%
+        );
+        display: flex;
+        width: 100%;
+        flex-direction: column;
+        align-items: center;
+        color: #fff;
+        white-space: nowrap;
+        margin: 0 auto;
+      }
+
+      .title {
+        font-family: Inter, sans-serif;
+        font-weight: 700;
+        margin-top: 25px;
+        margin-bottom: 25px;
+        font-size: 40px;
+      }
+
+      .timer {
+        width: 300px;
+        height: 300px;
+        font-family: Inter, sans-serif;
+        border-radius: 50%;
+        box-shadow: 4px 10px 20px 5px rgba(0, 0, 0, 0.2) inset,
+          0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+        background-color: #6e7274;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        aspect-ratio: 1;
+        font-weight: 400;
+        font-size: 30px;
+      }
+
+      .timer-list {
+        overflow-x: scroll;
+        margin-bottom: 150px;
+        margin-top: 50px;
+        justify-content: center;
+        border-radius: 25px;
+        background-color: #f0f5f1;
+        width: 60%;
+        max-height: 120px;
+        color: #5b5b5b;
+        padding: 37px 53px;
+        font: 600 25px Inter, sans-serif;
+      }
+      .timer-list:hover {
+        box-shadow: 10px 10px 5px 0px rgba(214, 209, 209, 0.62);
+        -webkit-box-shadow: 10px 10px 5px 0px rgba(214, 209, 209, 0.62);
+        -moz-box-shadow: 10px 10px 5px 0px rgba(214, 209, 209, 0.62);
+      }
+
+      .timer-item {
+        z-index: -1;
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 10px;
+      }
+
+      .controls {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        display: flex;
+        justify-content: space-around;
+        box-shadow: 0px 4px 5px 0px #366e85;
+        background-color: #1cb5f7;
+        padding-top: 5px;
+        padding-bottom: 15px;
+      }
+
+      .button {
+        all: unset;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        margin-top: 15px;
+        appearance: none;
+        color: white;
+        border-radius: 30px;
+        text-align: center;
+        cursor: pointer;
+        border-style: solid;
+        border-width: 2px;
+        width: 45%;
+        padding-top: 10px;
+        padding-bottom: 10px;
+      }
+      .button:hover {
+        background-color: white;
+        color: #1cb5f7;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="main-container">
+      <h2 class="title">STOPWATCH</h2>
+      <div class="timer" aria-label="Time">00:00:00:00:00.000</div>
+      <div class="timer-list laps"></div>
+      <div class="controls">
+        <button class="button" data-el="button-1">START</button>
+        <button class="button" data-el="button-2">STOP</button>
+      </div>
+    </header>
+
+    <script>
+      let isRunning = false;
+      let isPaused = false;
+      let timer = document.querySelector(".timer");
+      let timerList = document.querySelector(".timer-list");
+      let button1 = document.querySelector("[data-el='button-1']");
+      let button2 = document.querySelector("[data-el='button-2']");
+      let timeArray = [0, 0, 0, 0, 0, 0];
+
+      function startTimer() {
+        button1.textContent = "PAUSE";
+        button2.textContent = "FLAG";
+        if (!isRunning) {
+          isRunning = true;
+          let interval = setInterval(() => {
+            if (isRunning && !isPaused) {
+              timeArray[5]++;
+              if (timeArray[5] === 1000) {
+                timeArray[5] = 0;
+                timeArray[4]++;
+              }
+              if (timeArray[4] === 60) {
+                timeArray[4] = 0;
+                timeArray[3]++;
+              }
+              if (timeArray[3] === 60) {
+                timeArray[3] = 0;
+                timeArray[2]++;
+              }
+              if (timeArray[2] === 24) {
+                timeArray[2] = 0;
+                timeArray[1]++;
+              }
+              if (timeArray[1] === 7) {
+                timeArray[1] = 0;
+                timeArray[0]++;
+              }
+              timer.textContent = formatTimeArray(timeArray);
+            }
+          }, 0);
+        } else {
+          isPaused = !isPaused;
+          button1.textContent = isPaused ? "RESUME" : "PAUSE";
+          if (isPaused) {
+            button2.textContent = "STOP";
+          } else {
+            button2.textContent = "FLAG";
+          }
+        }
+      }
+
+      function STOPTimer() {
+        button1.textContent = "START";
+        isRunning = false;
+        isPaused = false;
+        timeArray = [0, 0, 0, 0, 0, 0];
+        timer.textContent = formatTimeArray(timeArray);
+      }
+
+      function pauseTimer() {
+        isPaused = !isPaused;
+        button1.textContent = isPaused ? "RESUME" : "PAUSE";
+        if (isPaused) {
+          button2.textContent = "STOP";
+        } else {
+          button2.textContent = "FLAG";
+        }
+      }
+
+      function lapShot() {
+        var timerItem = document.createElement("div");
+        timerItem.classList.add("timer-item");
+        timerItem.textContent = formatTimeArray(timeArray);
+        timerList.insertBefore(timerItem, timerList.firstChild);
+      }
+
+      function formatTimeArray(arr) {
+        const [weeks, days, hours, minutes, seconds, milliseconds] = arr;
+        return `${pad(weeks)}:${pad(days)}:${pad(hours)}:${pad(minutes)}:${pad(
+          seconds
+        )}.${pad(milliseconds, 2)}`;
+      }
+
+      function pad(num, length = 2) {
+        return num.toString().padStart(length, "0");
+      }
+
+      function tonggleLeft() {
+        if (isRunning) {
+          pauseTimer();
+        } else {
+          startTimer();
+        }
+      }
+
+      function tonggleRight() {
+        if (button2.textContent == "FLAG") {
+          lapShot();
+        } else {
+          STOPTimer();
+          timerList.innerHTML = "";
+        }
+      }
+      button1.addEventListener("click", tonggleLeft);
+      button2.addEventListener("click", tonggleRight);
+    </script>
+  </body>
+</html>

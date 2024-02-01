@@ -1,0 +1,255 @@
+openapi: 3.0.2
+info:
+  title: DevTest Soal 3
+  description: |-
+    Melihat seluruh data (Pagination, Soft Delete, Limit), menyimpan, mengupdate, mengahapus secara permanent atau tidak, serta recovery data.
+
+  contact:
+    email: mail@kelvinzer0.cloud
+  version: 1.0.0
+servers:
+  - url: /api
+tags:
+  - name: user
+    description: Operations about data user
+paths:
+  /users:
+    post:
+      tags:
+        - user
+      summary: Membuat data pengguna baru
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              example:
+                code: 200
+                type: CREATE_DATA
+                message: Success create data
+                data:
+                  id: '54'
+                  nama: Asep T
+                  tanggal_lahir: '1999-01-01'
+                  alamat: Jl. Testing Update
+                  is_active: '1'
+                  created_at: '2024-01-31 19:15:27'
+                  updated_at: null
+                  deleted_at: null
+    get:
+      tags:
+        - user
+      summary: Mengambil data pengguna dengan parameter tertentu
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Halaman data yang diinginkan
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          required: false
+          description: Batas jumlah data per halaman
+          schema:
+            type: integer
+        - name: deleted
+          in: query
+          required: false
+          description: Opsi untuk mendapatkan data yang dihapus
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              example:
+                code: 200
+                type: GET_ALL_DATA
+                message: Success get all data
+                data:
+                  - id: '1'
+                    nama: theUser
+                    tanggal_lahir: '1999-01-01'
+                    alamat: Jl. Testing Update
+                    is_active: '1'
+                    created_at: '2024-01-28 12:19:03'
+                    updated_at: '2024-01-31 12:15:00'
+                    deleted_at: '2024-01-31 18:14:54'
+                  - id: '2'
+                    nama: Asep T
+                    tanggal_lahir: '1999-01-01'
+                    alamat: Jl. Testing Update
+                    is_active: '1'
+                    created_at: '2024-01-28 12:20:03'
+                    updated_at: '2024-01-31 11:16:51'
+                    deleted_at: '2024-01-31 18:04:22'
+
+
+  /users/{user_id}:
+    get:
+      tags:
+        - user
+      summary: Mengambil data pengguna berdasarkan ID
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: ID pengguna yang akan diambil
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              example:
+                code: 200
+                type: GET_DATA
+                message: Success get data
+                data:
+                  id: '2'
+                  nama: Asep T
+                  tanggal_lahir: '1999-01-01'
+                  alamat: Jl. Testing Update
+                  is_active: '1'
+                  created_at: '2024-01-28 12:20:03'
+                  updated_at: '2024-01-31 11:16:51'
+                  deleted_at: '2024-01-31 18:04:22'
+    put:
+      tags:
+        - user
+      summary: Memperbarui data pengguna berdasarkan ID
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: ID pengguna yang akan diperbarui
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              example:
+                code: 200
+                type: UPDATE_DATA
+                message: Success update data
+                data:
+                  id: '2'
+                  nama: Asep T
+                  tanggal_lahir: '1999-01-01'
+                  alamat: Jl. Testing Update
+                  is_active: true
+                  created_at: null
+                  updated_at: null
+                  deleted_at: null
+        '404':
+          description: Data pengguna tidak ditemukan
+          content:
+            application/json:
+              example:
+                code: 404
+                type: GET_DATA
+                message: Failed get data
+    delete:
+      tags:
+        - user
+      summary: Menghapus pengguna berdasarkan ID
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: ID pengguna yang akan dihapus
+          schema:
+            type: integer
+        - name: soft_delete
+          in: query
+          required: false
+          description: Opsi penghapusan sementara
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              example:
+                code: 200
+                type: DELETE_DATA
+                message: Success delete data
+                data: null
+        '404':
+          description: Pengguna tidak ditemukan
+          content:
+            application/json:
+              example:
+                code: 404
+                type: DELETE_DATA
+                message: Failed get data
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        nama: 
+          type: string
+          example: theUser
+        tanggal_lahir:
+          type: string
+          example: "1999-01-01"
+        alamat: 
+          type: string
+          example: Jl. Testing Update
+        password: 
+          type: password
+          example: test123
+        is_active: 
+          type: boolean
+          example: true
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+      xml:
+        name: '##default'
+  requestBodies:
+    UserArray:
+      description: List of user object
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/User'
+  securitySchemes:
+    petstore_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://petstore3.swagger.io/oauth/authorize
+          scopes:
+            write:pets: modify pets in your account
+            read:pets: read your pets
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header
